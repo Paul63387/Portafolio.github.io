@@ -1,0 +1,601 @@
+---
+title: "Control Estadístico de Calidad"
+output: 
+  html_document:
+    code_folding: show
+    theme:
+      bg: "#1f363d"
+      fg: "#cfe0c3"
+      primary: "#EA80FC"
+      secondary: "#00DAC6"
+      base_font:
+        google: Prompt
+      heading_font:
+        google: Proza Libre
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+if (requireNamespace("thematic")) 
+  thematic::thematic_rmd(font = "auto")
+knitr::opts_chunk$set(fig.retina=2)
+library(dplyr)
+library(tidyr)
+```
+
+## Cartas de Control
+
+## Índice Cp
+
+Es un indicador de la capacidad potencial del proceso.
+
+$$
+C_p = \frac{Variación Tolerada}{Variación Real}
+$$
+
+Entonces:
+
+$$
+C_p = \frac{ES-EI}{6\sigma}
+$$
+
+Ejemplo:
+
+```{r}
+plot(density(rnorm(780, 783, 3)),
+     xlim = c(765, 795),
+     type = "l",
+     col = "black",
+     lwd = 3,
+     xlab = "Ancho en mm",
+     ylab = "Densidad",
+     main = "Ejemplo 1: Longitud de la capa de las llantas")
+abline(v = 770, col = "red")
+abline(v = 790, col = "red")
+```
+
+Como podemos ver el proceso no está centrado:
+
+```{r}
+ES <- 790
+EI <- 770
+Variacion_tolerada <- ES - EI 
+Variacion_real <- 6*(3)
+Cp <- Variacion_tolerada/Variacion_real;Cp
+```
+
+```{r}
+Valor_indice_cp <- c("Cp ≥ 2", 
+                     "Cp > 1.33",
+                     "1 < Cp < 1.33",
+                     "0.67 < Cp < 1",
+                     "Cp < 0.67")
+Clase_o_categoria <- c("Clase mundial",
+                       "1",
+                       "2",
+                       "3",
+                       "4")
+Decision_si_el_proc_esta_centra <- c("Se tiene calidad Seis Sigma",
+                                     "Adecuado",
+                                     "Parcialmente Adecuado, requiere de un control estricto",
+                                     "No adecuado para el trabajo, modificaciones serias",
+                                     "No adecuado para el trabajo, modificaciones muy serias")
+Tabla5_1 <- data.frame(Valor_indice_cp,
+                       Clase_o_categoria,
+                       Decision_si_el_proc_esta_centra)
+Tabla5_1
+
+```
+
+## Índice Cr
+
+Es un indicador de la capacidad potencial del proceso. Representa
+la proporción de la banda de especificaciones que es cubierta por
+el proceso.
+
+```{r}
+ES <- 790
+EI <- 770
+Variacion_real <- 6*(3)
+Variacion_tolerada <- ES - EI 
+Cr <- Variacion_real/Variacion_tolerada;Cr
+```
+
+Esto nos indica que la variación del proceso potencialmente cubre el 90% de la banda de especificaciones 
+> Nota:
+Estos dos índices no toman en cuenta si el proceso se encuentra 
+centrado lo cual se puede observar a partir de la figura la cual 
+es una desventaja para estos dos índices.
+
+## Índice Cpi
+
+Indicador de la capacidad de un proceso para cumplir con la especificación inferior de una
+característica de calidad.
+
+$$
+C_{pi}=\frac{\mu-EI}{3\sigma}
+$$
+```{r}
+mu <- 783
+Cpi <- (mu-EI)/(3*(3));Cpi
+```
+
+Como se puede ver si el indice supera el 1 y específicamente es mayor que 1.25 se puede decir que
+la especificación inferior es adecuada.
+
+## Índice Cps
+
+Indicador de la capacidad de un proceso para cumplir con la especificación superior de una
+característica de calidad.
+
+$$
+C_{ps}=\frac{ES-\mu}{3\sigma}
+$$
+
+```{r}
+Cps <- (ES-mu)/(3*(3));Cps
+```
+
+En este caso vemos que la especificación superior es la que tiene problemas ya que este es menor 
+a 1. Utilizando la tabla se puede ver que el porcentaje que se encuentra en este caso fuera de la
+especificación superior es entre 1.79% y 0.82% aproximadamente.
+
+> Nota:
+Como vemos en este caso se puede obtener un índice que si toma en cuenta el centrado del proceso
+es decir se utiliza la media y claro como es la mitad de la distribución se utiliza 3 sigma.
+
+## Índice Cpk
+
+Es un indicador de la capacidad real de un proceso que se puede ver como un ajuste del $C_p$ para tomar en cuenta el centrado del proceso.
+
+$$
+C_{pk} = Mínimo \left[\frac{\mu-EI}{3\sigma} , \frac{ES-\mu}{3\sigma}\right] \\
+Mínimo \left[\frac{783-770}{3*3} , \frac{790-783}{3*3}\right]= \\
+Mínimo [1.44,0.78] = 0.78
+$$
+
+```{r}
+Cpk <- min(c(Cpi, Cps));Cpk
+```
+
+En general el proceso indica una capacidad no satisfactoria. El porcentaje de de capas
+que exceden los 790 mm se encuentran entre 0.82% y 1.79%. Entonces si mejora su centrado
+alcanzaría el valor del $C_p = 1.11$ 
+
+## Índice K
+
+Nos indica que tan centrado está un proceso respecto a las especificaciones dadas.
+
+$$
+K = \frac{\mu - N}{\frac{1}{2}(ES-EI)} \times 100 \\
+= \frac{783 - 780}{\frac{1}{2}(790-770)} \times 100 = 30\%
+$$
+
+```{r}
+N <- 780
+k <- (mu-N)/(1/2*(ES-EI))*100;k
+```
+
+Esto nos dice que el proceso está desviado $30\%$ a la derecha del valor nominal por
+lo que el centrado del proceso es inadecuado y esto contribuye de manera significativa 
+a la baja capacidad del proceso de cumplir con la especificación superior anterior
+mencionada.
+
+## Índice Cpm
+
+Índice de **Taguchi** similar al $C_{pk}$ que, en forma simultanea, toma en cuenta
+el centrado y la variabilidad del proceso.
+
+$$
+C_{pm} = \frac{ES-EI}{6\tau} \\
+\tau = \sqrt{\sigma^2+(\mu-N)^2}\\
+N = 0.5(ES+EI)
+$$
+
+Entonces:
+
+$$
+C_{pm} = \frac{ES-EI}{6\sqrt{\sigma^2+(\mu-0.5(ES+EI))^2}} \\
+C_{pm} = \frac{20}{25.46} = 0.79
+$$
+
+```{r}
+a <- c("Cpm < 1", "Cpm > 1", "Cpm > 1.33")
+b <- c("El proceso no cumple con especificaciones",
+       "El proceso cumple con especificaciones",
+       "El proceso cumple con especificaciones, pero además la media del proceso está dentro de la quinta parte central de la banda de especificación")
+c <- data.frame(a,b);c
+```
+
+```{r}
+Cpm <- (ES-EI)/(6*sqrt((3^2)+(mu-0.5*(ES+EI))^2));Cpm
+```
+
+Lo que quiere decir es que como es menor a 1, el proceso no cumple con especificaciones.
+
+
+## Índice Pp
+
+Indicador del desempeño potencial del proceso que se calcula de forma similar al 
+índice $C_p$ pero usando la desviación estándar de largo plazo.
+
+Este índice se no toma el centrado del proceso por el cual se complemente con el $P_pk$
+
+$$
+P_p = \frac{ES-EI}{6\sigma_L} \rightarrow Desempeño \space del \space proceso \space a \space largo \space plazo 
+$$
+
+## Índice Ppk
+
+Indicador del desempeño real del proceso, que se calcula de forma similar al indice $C_{pk}$ pero usando la desviación estándar de largo plazo.
+
+$$
+P_{pk} = mínimo \left[\frac{\mu-EI}{3\sigma_L},\frac{ES-\mu}{3\sigma_L}\right]
+$$
+
+> Nota: 
+Se utiliza igual que el Cpk solo que se utiliza un sigma sub L, lo cual significa
+que es de largo plazo.
+
+
+## Índice Z
+
+Es la métrica de capacidad de procesos de mayor uso en Seis Sigma. Se obtiene calculando
+la distancia entre la media y las especificaciones y esta distancia se divide entre la 
+desviación estándar.
+
+$$
+Z = mínimo[Z_s - Z_i]
+$$
+
+Entonces:
+
+$$
+Z_s = \frac{ES-\mu}{\sigma}
+$$
+
+
+$$
+Z_i = \frac{\mu-EI}{\sigma}
+$$
+
+> Nota:
+Este índice tiene la calidad de 3 sigma.
+
+
+## Índice Zm
+
+Desplazamiento o movimiento del proceso.
+
+$$
+Z_m = Z_c-Z_L
+$$
+
+### Índice Zc
+
+Valor del índice Z en el cual se emplea la desviación estándar de corto plazo.
+
+### Índice ZL
+
+Valor del índice Z en el cual se emplea la desviación estándar de largo plazo.
+
+```{r}
+a <- c("Zm < 1.5", "Zm > 1.5", "Zm No se conoce")
+b <- c("El proceso tiene un mejor control que el promedio",
+       "El control es muy malo",
+       "Se asume un valor de 1.5")
+c <- data.frame(a,b);c
+```
+
+## Proceso Tres Sigma
+
+Proceso cuya capacidad para cumplir con especificaciones a corto plazo es igual a $Z_c=3$
+y el índice es $C_{pk}=1$
+
+> Nota
+La calidad 3 sigma implica demaciados errores. En este caso los índices C_p y el 
+C_pk = 1. Cuando es 3 sigma el pasar del tiempo hace que quede fuera de las especificaciones.
+
+$$
+LímiteRealInferior= \mu - 3\sigma = 50.01 -3(0.20) = 49.41 92   \\
+LímiteRealSuperior= \mu + 3\sigma = 50.01 -3(0.20) = 49.41
+$$
+
+Proceso cuya capacidad para cumplir con especificaciones a corto plazo es igual a $Z_c=6$
+o cuando es a largo plazo significa $Z_{L}= 4.5$, lo cual, a corto plazo significa $C_{pk}=2$ y a largo plazo $P_{pk}=1.5$
+
+
+## Metricas Seis Sigma para atributos 
+
+### DPMO
+
+Cuando las características de calidad son para atributos. Existe un índice que nos permite ver los defectos por unidades.
+
+$$DPU = \frac{d}{U}$$
+
+Ejemplo: En el proceso de ensamble de un mueble existen 24 puntos de ensamble entonces en la inspección final se evaluan cada punto de ensamble. Al final del mes se tiene que de 2000 muebles revisados se encontraron 120 puntos de ensamble insatisfactorios.
+
+$$DPU = \frac{120}{2000}= 0.06$$
+
+Lo que quiere decir es que en promedio cada silla tiene 0.06 ensambles defectuosos y que en 100 sillas se esperarían 6 ensambles defectuosos.
+
+Los defectos por oportunidad que mide la no calidad de un proceso es:
+
+$$DPO = \frac{d}{U\times O}= 0.06$$
+
+$$DPO = \frac{120}{2000\times 24}=\frac{120}{48000}= 0.0025 \times 1000000 = 2500$$
+
+Lo que quiere decir que de 1000000 de ensambles realizados se espera tener 2500 con algún tipo de defecto.
+
+## Estimaciones por intervalo de los índices de capacidad
+
+$$
+\hat{C_p} \pm Z_{\infty/2} \frac{\hat{C_p}}{\sqrt{2(n-1)}}
+$$
+
+$$
+\hat{C_{pk}} \pm Z_{\infty/2} \sqrt{\frac{\hat{C^2_{pk}}}{2(n-1)}+\frac{1}{9n}}
+$$
+
+$$
+\hat{C_{pm}} \pm Z_{\infty/2} \frac{\hat{C_{pm}}}{\sqrt{n}} \sqrt{\frac{\frac{1}{2}+\frac{(\bar{X}-N)^2}{S^2}}{\left[1+\frac{(\bar{X}-N)^2}{S^2}\right]^2}}
+$$
+
+## Causas Comunes y Especiales de Variación
+
+Existen dos tipo de variabilidad:
+
+* Causas Comunes (Azar): Está en control estadístico o es estable porque su comportamiento atraves del tiempo es predecible.
+* Causas Especiales o Atribuibles: Está fuera control estadístico o es inestable ya que son impredecibles en el futuro inmediato.
+
+Es muy importante tomar en cuenta los tipos de errores que existen:
+
+* Error Tipo 1: Pensar que era una causa especial cuando en realidad era una causa común.
+* Error Tipo 2: Pensar que era una causa común cuando en realidad era una causa especial.
+
+> Nota: Se puede evitar uno u otro pero no ambos.
+
+## Cartas de control
+
+Es una gráfica para observar y analizar la variabilidad y el comportamiento de un proceso a través del tiempo.
+
+## Límites de probabilidad
+
+Es cuando los límites de control se calculan con la distribución de probabilidad del estadístico para que logren un porcentaje de cobertura específico.
+
+Si la distribuidora es unimodal pero no normal se aplica el teorema de Chebyshev.
+
+$$LCI = \mu_w - 3\sigma_w\\
+Línea \space central = \mu_w\\
+LCS = \mu_w + 3\sigma_w$$
+
+> Nota: Si W tiene un comportamiento normal tendra una probabilidad de 0.9973 de caer en dentro de las especificaciones.
+
+## Tipos de Cartas de control {.tabset .tabset-pills}
+
+### Cartas de Control Variables
+
+Para variables continuas:
+
+* $\bar{X}$ (de medias)
+* $R$ (de rangos)
+* $S$ (de desviaciones estándar)
+* $X$ (de medidas individuales)
+
+> Nota: Estos son recogidos con un instrumento. Estas variables por ejemplo la temperatura, peso, longitud, etc.
+
+### Cartas de Control Atributos
+
+* $p$ (proporción o fracción de artículos defectuosos)
+* $np$ (número de unidades defectuosas)
+* $c$ (número de defectos)
+* $u$ (número de defectos por unidad)
+
+> Nota: Son del tipo conforme o no conforme depende de si posee o no ciertos atributos, número de defectos o no conformidades que tiene el producto.
+
+## Cartas de Control $\bar{X} - R$ {.tabset .tabset-pills}
+
+Diagramas para variables que se aplican a procesos masivos, en donde de forma periódica se obtiene un subgrupo de productos, se miden y se calcula la media y el rango R para registrarlos en la carta correspondiente.
+
+**La carta R** detecta cambios significativos en la amplitud de la dispersión. Por ejemplo, si la variabilidad aumenta (una campana más amplia), la carta R lo detecta mediante uno o más puntos fuera de su LCS (Límite de control superior). 
+
+**La carta $\bar{X}$** detecta cambios significativos en la media del proceso. Cuando la curva se desplaza la carta manda una o varias señales de fuera de control.
+
+Tomando esto en cuenta tenemos los siguientes *límites de control:* 
+
+### Estudio Inicial Carta $\bar{X}$
+
+$$
+LCS = \bar{X}+A_2\bar{R} \\
+Línea \space central = \bar{X} \\
+LCS = \bar{X}-A_2\bar{R}
+$$
+
+### Carta cuando se conoce $\bar{X}$ y $\sigma$
+
+$$
+LCS = \bar{X}+ 3 \frac{\sigma}{\sqrt{n}} \\
+Línea \space central = \bar{X} \\
+LCS = \bar{X}- 3 \frac{\sigma}{\sqrt{n}}
+$$
+
+### Límites de control Carta R
+
+$$
+LCS = D_3 \bar{R}\\
+Línea \space central = \bar{R} \\
+LCS = D_4 \bar{R}
+$$
+
+## Ejemplo {.tabset .tabset-pills}
+
+### ETL
+
+```{r warning=FALSE, message=FALSE}
+ejemplo1 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Control\\Libro1.xlsx",
+                                sheet = "Hoja2",
+                                rows = c(97:127),
+                                cols = c(2:7))
+ejemplo1 <- ejemplo1 %>% 
+  rename(Muestra = Muestra.o.subgrupo,
+         X2 = Mediciones.del.diametro)%>% pivot_longer(c(2:6),
+                                      names_to = "Submuestra",
+                                      values_to = "Mediciones")
+ejemplo1_med <- ejemplo1 %>% 
+  group_by(Muestra) %>% 
+  summarise(Media = mean(Mediciones),
+            Rango = max(Mediciones)-min(Mediciones))
+media_promedio <- mean(ejemplo1_med$Media)
+media_rango <- mean(ejemplo1_med$Rango)
+LCS <- media_promedio+0.577*(media_rango)
+LC <- media_promedio
+LCI <- media_promedio-0.577*(media_rango)
+
+ejemplo1_med$LCS <- LCS
+ejemplo1_med$LC <- LC
+ejemplo1_med$LCI <- LCI
+D4 <- 2.1144
+D3 <- 0
+LCS_R <- D4*(media_rango)
+LC_R <- media_rango
+LCI_R <- D3*(media_rango)
+
+ejemplo1_med$LCS_R <- LCS_R
+ejemplo1_med$LC_R <- LC_R
+ejemplo1_med$LCI_R <- LCI_R
+rbind(head(ejemplo1_med),tail(ejemplo1_med))
+```
+
+### Gráfica $\bar{X}$
+
+```{r warning=FALSE, message=FALSE}
+plot(ejemplo1_med$Media, type = "o", 
+     ylim = c(-16,17),
+     ylab = "Muestras",
+     xlab = "Diámetro",
+     main = "Gráfico X",
+     col = "#EA80FC")
+abline(h = ejemplo1_med$LCS, col = "white",lty = 2)
+abline(h = ejemplo1_med$LC, col = "#00DAC6", lty = 2)
+abline(h = ejemplo1_med$LCI, col = "white", lty = 2)
+
+```
+
+
+### Gráfica $R$
+
+```{r warning=FALSE, message=FALSE}
+plot(ejemplo1_med$Rango, type = "o", 
+     ylim = c(-5,60),
+     ylab = "Muestras",
+     xlab = "Diámetro",
+     main = "Gráfico R",
+     col = "#EA80FC")
+abline(h = ejemplo1_med$LCS_R, col = "white",lty = 2)
+abline(h = ejemplo1_med$LC_R, col = "#00DAC6", lty = 2)
+abline(h = ejemplo1_med$LCI_R, col = "white", lty = 2)
+
+```
+
+## Cartas de Control $\bar{X} - S$ {.tabset .tabset-pills}
+
+Diagrama para variables que se aplican a procesos masivos, en los quiere tener una mayor potencia para detectar pequeños cambios. Por lo general, el tamaño de los subgrupos es $n>10$.
+
+### Carta $\bar{X}$
+
+$$
+LCS = \bar{X} + 3 \frac{\bar{S}}{C_4 \sqrt{n}}\\
+LC = \bar{X}\\
+LCI = \bar{X} - 3 \frac{\bar{S}}{C_4 \sqrt{n}}
+$$
+
+### Carta $S$
+
+$$
+LCS = \bar{S} + 3 \frac{\bar{S}}{C_4}\sqrt{1-C^2_4}\\
+LC = \bar{S}\\
+LCI = \bar{S} - 3 \frac{\bar{S}}{C_4} \sqrt{1-C^2_4}
+$$
+
+## Índice de inestabilidad $, S_t$
+
+Mide que tan inestable es un proceso y se obtiene dividiendo el número de puntos especiales entre el total de puntos graficados en una carta.
+
+$$
+S_t = \frac{Número \space de \space puntos \space especiales}{Número \space total \space de \space puntos} \times 100
+$$
+
+> Proceso Inestable
+
+Proceso fuera de control estadístico que se detecta cuando en la carta de control los puntos están fuera de sus límites o siguen un patrón no aleatorio.
+
+> Puntos Especiales
+
+Son señales de que una causa especial ocurrio en el proceso
+
+## Carta de individuales
+
+Es un diagrama para variables de tipo continuo que se aplica a procesos lentos, donde hay un espacio largo de tiempo entre una medición y la siguiente.
+
+$$
+\mu_X = \bar{X} \space y \space \sigma_x=\frac{\bar{R}}{d_2}=\frac{\bar{R}}{1.128}\\
+\bar{X} \pm 3 \left(\frac{\bar{R}}{1.128}\right)
+$$
+
+## Carta de Rangos Moviles
+
+Carta que acompaña a la carta de individuales, y en ella se grafica el rango móvil de orden 2. Es de utilidad para detectar cambios en la dispersión de procesos.
+
+Límite de control inferior $= D_3 \bar{R} = 0 \times 0.43 = 0$
+
+Límite central $= \bar{R} = 0.43$
+
+Límite de control superior $= D_4 \bar{R} = 3.2686 \times 0.43 = 1.41$
+
+## Carta de Precontrol
+
+Diagrama para variables con doble especificación en donde se grafican las mediciones individuales, utiliza las especificaciones como límites de control y se aplica cuando $C_{pk}> 1.15$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
