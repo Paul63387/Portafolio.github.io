@@ -2,6 +2,8 @@
 title: "Control Estadístico de Calidad"
 output: 
   html_document:
+    toc_float: true
+    toc: true
     code_folding: show
     theme:
       bg: "#1f363d"
@@ -22,6 +24,7 @@ if (requireNamespace("thematic"))
 knitr::opts_chunk$set(fig.retina=2)
 library(dplyr)
 library(tidyr)
+library(ggplot2)
 ```
 
 ## Cartas de Control
@@ -557,23 +560,138 @@ Límite de control superior $= D_4 \bar{R} = 3.2686 \times 0.43 = 1.41$
 
 Diagrama para variables con doble especificación en donde se grafican las mediciones individuales, utiliza las especificaciones como límites de control y se aplica cuando $C_{pk}> 1.15$
 
+## Carta $p$ (proporción de defectos)
 
+Muestras las variaciones en la fracción de artículos por muestra o subgrupo; es ampliamente utilizada para evaluar el desempeño de procesos.
 
+> Articulos defectuosos
+Es un producto que no reune ciertos atributos, por lo que no se permite que pase en la siguiente etapa del proceso; puede ser reprocesado o de plano desechado.
 
+$$
+p_i = \frac{d_i}{n_i} \space  ;\space \mu_{pi} =\bar{p} \space  y \space \sigma_{pi}=\sqrt{\frac{\bar{p}(1-\bar{p})}{n}} \\
+Límite \space de \space control \space inferior = LCI= \bar{p}-3 \sqrt{\frac{\bar{p}(1-\bar{p})}{n}}\\
+Límite \space central = \bar{p} \\
+Límite \space de \space control \space superior =LCS= \bar{p}+3 \sqrt{\frac{\bar{p}(1-\bar{p})}{n}}
+$$
 
+> Nota:
+Cuando n no es constante existen dos alternativas: Se toma el el promedio de los n o construir una carta de control con límites variables.
 
+> Límites de la carta $p$:
+Indican la variación esperada para la proporción de artículos defectuosos por subgrupo. Se calculan a partir de la distribución binomial y su aproximación a la distribución normal.
 
+> Carta $100p$:
+Es equivalente a la carta $p$, pero en lugar de las proporciones se registra y analiza el porcentaje de artículos defectuosos por subgrupo.
 
+> Carta $p$ con límites variables:
+Se aplica cuando el tamaño del subgrupo n, es muy variable; para cada $n_i$ diferente se calculan límites de control.
 
+$$
+Límite \space de \space control \space inferior = LCI= \bar{p}-3 \sqrt{\frac{\bar{p}(1-\bar{p})}{n_i}}\\
+Límite \space central = \bar{p} \\
+Límite \space de \space control \space superior =LCS= \bar{p}+3 \sqrt{\frac{\bar{p}(1-\bar{p})}{n_i}}
+$$
 
+> Carta $p$ normalizada:
+En esta carta se grafica la proporción estandarizada y se utiliza cuando el tamaño de subgrupo $n_i$ es muy variable.
 
+$$
+z_i = \frac{p_i-\bar{p}}{\sqrt{\frac{\bar{p}(1-\bar{p})}{n_i}}} \\
+LCS = 3\\
+LC  = 0\\
+LCI = -3
+$$
 
+## Carta $np$ (número de defectuosos) {.tabset .tabset-pills}
 
+Diagrama que analiza el número de defectuosos por subgrupo; se aplica cuando el tamaño de subgrupo es constante.
 
+> Límites de la carta $np$: Indican la cantidad esperada de piezas defectuosas por cada muestra de $n$ componentes inspeccionados, mientras el proceso no tenga cambios importantes.
 
+$$
+\mu_{d_i} = n\bar{p} \space y \space \sigma_{d_i} = \sqrt{n\bar{p}(1-\bar{p})} \space ;\space \bar{p} = \frac{\sum{Defectuosos}}{n\times Submuestras}\\
+LCS = n\bar{p} +3\sqrt{n\bar{p}(1-\bar{p})} \\
+LC  = n\bar{p}\\
+LCI = n\bar{p} -3\sqrt{n\bar{p}(1-\bar{p})}
+$$
 
+### ETL
 
+> Ejemplo: de una muestra de $n=120$ se toman 20 lotes donde se analizan los componentes que tienen defectos.
 
+```{r}
+ejemplo2 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Control\\Libro1.xlsx",
+                                sheet = "Hoja4",
+                                rows = c(97:117),
+                                cols = c(6:7))
+n <- 120
+submuestras <- 20
+p_bar <- sum(ejemplo2$Componentes.D)/(n * submuestras)
+
+LCS <- n*p_bar+3*sqrt(n*p_bar*(1-p_bar))
+LCI <- n*p_bar-3*sqrt(n*p_bar*(1-p_bar))
+LC <- n*p_bar
+ejemplo2$LCS <- LCS
+ejemplo2$LCI <- LCI
+ejemplo2$LC <- LC
+
+rbind(head(ejemplo2, 5), tail(ejemplo2, 5))
+```
+
+### Gráfico $np$ (R Base)
+
+```{r}
+plot(ejemplo2$Componentes.D, type = "o", 
+     ylim = c(min(ejemplo2$LCI)-5,max(ejemplo2$LCS)+5),
+     ylab = "Componentes Defectuosos",
+     xlab = "Muestras",
+     main = "Gráfico np",
+     col = "#EA80FC")
+abline(h = ejemplo2$LCS, col = "white",lty = 2)
+abline(h = ejemplo2$LC, col = "#00DAC6", lty = 2)
+abline(h = ejemplo2$LCI, col = "white", lty = 2)
+```
+
+### Gráfico $np$ (GGPLOT2)
+
+```{r}
+ejemplo2 %>% ggplot(aes(Muestra, Componentes.D))+
+  geom_line(size = .7)+
+  geom_point()+
+  geom_hline(yintercept = c(mean(LCS),
+                            mean(LCI), 
+                            mean(LC)), 
+             linetype = "dashed",
+             size = 1,
+             alpha = .5)+
+  labs(title = "Gráfica np",
+       x = "Muestra",
+       y = "Componentes Defectuosos")+
+  scale_y_continuous(limits = c(-3,20), breaks = seq(0,20,2))+
+  scale_x_continuous(breaks = seq(0,20,1))+
+  theme_classic()+
+  theme(plot.title = element_text(hjust =.5, size = 20))+
+  geom_text(aes(x = 19, 
+                label = "LCI = 0.43", 
+                y = 0), 
+            angle = 0, 
+            color = "gray40",
+            vjust = 1.2)+
+  geom_text(aes(x = 19, 
+                label = "LCS = 17.87", 
+                y = 19.5), 
+            angle = 0, 
+            color = "gray40",
+            vjust = 1.2)+
+  geom_text(aes(x = 19, 
+                label = "LC = 9.15", 
+                y = 9.15), 
+            angle = 0, 
+            color = "gray40",
+            vjust = 1.2)
+  
+  
+```
 
 
 
