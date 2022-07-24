@@ -4,12 +4,9 @@ output:
   html_document:
     toc_float: true
     toc: true
-    code_folding: show
+    code_folding: show #show
     theme:
-      bg: "#1f363d"
-      fg: "#cfe0c3"
-      primary: "#EA80FC"
-      secondary: "#00DAC6"
+      bootswatch: "lux"
       base_font:
         google: Prompt
       heading_font:
@@ -21,7 +18,9 @@ editor_options:
 ```{r setup, include=FALSE}
 if (requireNamespace("thematic")) 
   thematic::thematic_rmd(font = "auto")
-knitr::opts_chunk$set(fig.retina=2)
+knitr::opts_chunk$set(fig.retina=2, 
+                      message = FALSE,
+                      warning = FALSE)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -49,13 +48,13 @@ Ejemplo:
 plot(density(rnorm(780, 783, 3)),
      xlim = c(765, 795),
      type = "l",
-     col = "black",
+     col = "#EA80FC",
      lwd = 3,
      xlab = "Ancho en mm",
      ylab = "Densidad",
      main = "Ejemplo 1: Longitud de la capa de las llantas")
-abline(v = 770, col = "red")
-abline(v = 790, col = "red")
+abline(v = 770, col = "white")
+abline(v = 790, col = "white")
 ```
 
 Como podemos ver el proceso no está centrado:
@@ -65,7 +64,7 @@ ES <- 790
 EI <- 770
 Variacion_tolerada <- ES - EI 
 Variacion_real <- 6*(3)
-Cp <- Variacion_tolerada/Variacion_real;Cp
+Cp <- Variacion_tolerada/Variacion_real;paste("CP =",round(Cp, digits = 2), sep = " ")
 ```
 
 ```{r}
@@ -102,7 +101,7 @@ ES <- 790
 EI <- 770
 Variacion_real <- 6*(3)
 Variacion_tolerada <- ES - EI 
-Cr <- Variacion_real/Variacion_tolerada;Cr
+Cr <- Variacion_real/Variacion_tolerada;paste("Cr =",round(Cr, digits = 2), sep = " ")
 ```
 
 Esto nos indica que la variación del proceso potencialmente cubre el 90% de la banda de especificaciones 
@@ -121,7 +120,7 @@ C_{pi}=\frac{\mu-EI}{3\sigma}
 $$
 ```{r}
 mu <- 783
-Cpi <- (mu-EI)/(3*(3));Cpi
+Cpi <- (mu-EI)/(3*(3));paste("Cpi =",round(Cpi, digits = 2), sep = " ")
 ```
 
 Como se puede ver si el indice supera el 1 y específicamente es mayor que 1.25 se puede decir que
@@ -137,7 +136,7 @@ C_{ps}=\frac{ES-\mu}{3\sigma}
 $$
 
 ```{r}
-Cps <- (ES-mu)/(3*(3));Cps
+Cps <- (ES-mu)/(3*(3));paste("Cps",round(Cps, digits = 2),sep = " ")
 ```
 
 En este caso vemos que la especificación superior es la que tiene problemas ya que este es menor 
@@ -159,7 +158,7 @@ Mínimo [1.44,0.78] = 0.78
 $$
 
 ```{r}
-Cpk <- min(c(Cpi, Cps));Cpk
+Cpk <- min(c(Cpi, Cps));paste("Cpk =",round(Cpk, digits = 2), sep = " ")
 ```
 
 En general el proceso indica una capacidad no satisfactoria. El porcentaje de de capas
@@ -177,7 +176,7 @@ $$
 
 ```{r}
 N <- 780
-k <- (mu-N)/(1/2*(ES-EI))*100;k
+k <- (mu-N)/(1/2*(ES-EI))*100;paste("k = ",k, "%",sep = "")
 ```
 
 Esto nos dice que el proceso está desviado $30\%$ a la derecha del valor nominal por
@@ -212,7 +211,7 @@ c <- data.frame(a,b);c
 ```
 
 ```{r}
-Cpm <- (ES-EI)/(6*sqrt((3^2)+(mu-0.5*(ES+EI))^2));Cpm
+Cpm <- (ES-EI)/(6*sqrt((3^2)+(mu-0.5*(ES+EI))^2));paste("Cpm = ",round(Cpm, digits = 2),sep = "")
 ```
 
 Lo que quiere decir es que como es menor a 1, el proceso no cumple con especificaciones.
@@ -475,8 +474,8 @@ rbind(head(ejemplo1_med),tail(ejemplo1_med))
 ```{r warning=FALSE, message=FALSE}
 plot(ejemplo1_med$Media, type = "o", 
      ylim = c(-16,17),
-     ylab = "Muestras",
-     xlab = "Diámetro",
+     ylab = "Diámetro",
+     xlab = "Muestras",
      main = "Gráfico X",
      col = "#EA80FC")
 abline(h = ejemplo1_med$LCS, col = "white",lty = 2)
@@ -491,8 +490,8 @@ abline(h = ejemplo1_med$LCI, col = "white", lty = 2)
 ```{r warning=FALSE, message=FALSE}
 plot(ejemplo1_med$Rango, type = "o", 
      ylim = c(-5,60),
-     ylab = "Muestras",
-     xlab = "Diámetro",
+     ylab = "Diámetro",
+     xlab = "Muestras",
      main = "Gráfico R",
      col = "#EA80FC")
 abline(h = ejemplo1_med$LCS_R, col = "white",lty = 2)
@@ -656,8 +655,8 @@ abline(h = ejemplo2$LCI, col = "white", lty = 2)
 
 ```{r}
 ejemplo2 %>% ggplot(aes(Muestra, Componentes.D))+
-  geom_line(size = .7)+
-  geom_point()+
+  geom_line(size = .5, col = "#EA80FC")+
+  geom_point(size = 1.7,col = "#EA80FC")+
   geom_hline(yintercept = c(mean(LCS),
                             mean(LCI), 
                             mean(LC)), 
@@ -669,41 +668,70 @@ ejemplo2 %>% ggplot(aes(Muestra, Componentes.D))+
        y = "Componentes Defectuosos")+
   scale_y_continuous(limits = c(-3,20), breaks = seq(0,20,2))+
   scale_x_continuous(breaks = seq(0,20,1))+
-  theme_classic()+
   theme(plot.title = element_text(hjust =.5, size = 20))+
   geom_text(aes(x = 19, 
                 label = "LCI = 0.43", 
                 y = 0), 
             angle = 0, 
-            color = "gray40",
+            color = "gray80",
             vjust = 1.2)+
   geom_text(aes(x = 19, 
                 label = "LCS = 17.87", 
                 y = 19.5), 
             angle = 0, 
-            color = "gray40",
+            color = "gray80",
             vjust = 1.2)+
   geom_text(aes(x = 19, 
                 label = "LC = 9.15", 
                 y = 9.15), 
             angle = 0, 
-            color = "gray40",
+            color = "gray80",
             vjust = 1.2)
-  
-  
 ```
 
+## Cartas $c$ (número de defectos)
 
+La **Carta c** tiene como objetivo el analizar la variabilidad del número de defectos por subgrupo o unidad con un tamaño de subgrupo constante.
 
+$$
+\mu_{c_i}= \bar{c} = \frac{Total \space de \space defectos}{Total \space de \space subgrupos} \space y \space \sigma_{c_i} = \bar{c}\\
+LCS = \bar{c}+3\sqrt{\bar{c}}\\
+LC = \bar{c}\\
+LCI = \bar{c}-3\sqrt{\bar{c}}
+$$
 
+> Los límites reflejan la variación esperada para el número de defectos por subgrupo.
 
+## Carta $u$ (número de defectos por unidad)
 
+La **Carta $u$** analiza la variación del número promedio de defectos por artículo o unidad de referencia. Se usa cuando el tamaño del subgrupo no es constante.
 
+$$
+u_i = \frac{c_i}{n_i} u_{\mu_i} = \bar{u}= \frac{Total \space de \space defectos}{Total \space de \space articulos \space inspeccionados}\\
+\sigma_{u_i}=\sqrt{\frac{\bar{u}}{n}}
+$$
 
+Esta carta sigue una distribución de poisson y sus límites son:
 
+$$
+LCS = \bar{u} + 3\sqrt{\frac{\bar{u}}{n}}\\
+LC = \bar{u} \\
+LCI = \bar{u} - 3\sqrt{\frac{\bar{u}}{n}}\\
+$$
 
+> Nota: Cuando n no es el mismo en todos los subgrupos, entonces se sustituye por el tamaño promedio de los subgrupos n. En la carta u se grafica el número promedio de defectos por unidad.
 
+## Carta $u$ con límites variables
 
+Se aplica cuando el tamaño de subgrupo $n$, es muy variable. Para cada $n_i$ se calcula los límites de control correspondientes.
+
+## Carta $u$ estandarizada
+
+La variable $Z_i$ sigue aproximadamente una distribución normal estándar $(\mu=0,\sigma=1)$. Por lo tanto, la línea central en esta carta es igual a cero, y los límites de control inferior y superior son $-3$ y $3$, respectivamente.
+
+$$
+z_i=\frac{u_i-\bar{u}}{\sqrt{\frac{\bar{u}}{n_i}}}
+$$
 
 
 
