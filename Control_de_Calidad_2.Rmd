@@ -1,5 +1,5 @@
 ---
-title: "Control Estadístico de Calidad"
+title: "Control Estadístico"
 output: 
   html_document:
     toc_float: true
@@ -7,6 +7,9 @@ output:
     code_folding: show #show
     theme:
       bootswatch: "lux"
+      font_scale: 1
+      enable-gradients: "TRUE"
+      enable-shadows: "TRUE"
       base_font:
         google: Prompt
       heading_font:
@@ -26,9 +29,7 @@ library(tidyr)
 library(ggplot2)
 ```
 
-## Cartas de Control
-
-## Índice Cp
+### Índice Cp
 
 Es un indicador de la capacidad potencial del proceso.
 
@@ -53,8 +54,8 @@ plot(density(rnorm(780, 783, 3)),
      xlab = "Ancho en mm",
      ylab = "Densidad",
      main = "Ejemplo 1: Longitud de la capa de las llantas")
-abline(v = 770, col = "white")
-abline(v = 790, col = "white")
+abline(v = 770, col = "grey60")
+abline(v = 790, col = "grey60")
 ```
 
 Como podemos ver el proceso no está centrado:
@@ -90,7 +91,7 @@ Tabla5_1
 
 ```
 
-## Índice Cr
+### Índice Cr
 
 Es un indicador de la capacidad potencial del proceso. Representa
 la proporción de la banda de especificaciones que es cubierta por
@@ -110,7 +111,7 @@ Estos dos índices no toman en cuenta si el proceso se encuentra
 centrado lo cual se puede observar a partir de la figura la cual 
 es una desventaja para estos dos índices.
 
-## Índice Cpi
+### Índice Cpi
 
 Indicador de la capacidad de un proceso para cumplir con la especificación inferior de una
 característica de calidad.
@@ -126,7 +127,7 @@ Cpi <- (mu-EI)/(3*(3));paste("Cpi =",round(Cpi, digits = 2), sep = " ")
 Como se puede ver si el indice supera el 1 y específicamente es mayor que 1.25 se puede decir que
 la especificación inferior es adecuada.
 
-## Índice Cps
+### Índice Cps
 
 Indicador de la capacidad de un proceso para cumplir con la especificación superior de una
 característica de calidad.
@@ -147,7 +148,7 @@ especificación superior es entre 1.79% y 0.82% aproximadamente.
 Como vemos en este caso se puede obtener un índice que si toma en cuenta el centrado del proceso
 es decir se utiliza la media y claro como es la mitad de la distribución se utiliza 3 sigma.
 
-## Índice Cpk
+### Índice Cpk
 
 Es un indicador de la capacidad real de un proceso que se puede ver como un ajuste del $C_p$ para tomar en cuenta el centrado del proceso.
 
@@ -165,7 +166,7 @@ En general el proceso indica una capacidad no satisfactoria. El porcentaje de de
 que exceden los 790 mm se encuentran entre 0.82% y 1.79%. Entonces si mejora su centrado
 alcanzaría el valor del $C_p = 1.11$ 
 
-## Índice K
+### Índice K
 
 Nos indica que tan centrado está un proceso respecto a las especificaciones dadas.
 
@@ -184,7 +185,7 @@ lo que el centrado del proceso es inadecuado y esto contribuye de manera signifi
 a la baja capacidad del proceso de cumplir con la especificación superior anterior
 mencionada.
 
-## Índice Cpm
+### Índice Cpm
 
 Índice de **Taguchi** similar al $C_{pk}$ que, en forma simultanea, toma en cuenta
 el centrado y la variabilidad del proceso.
@@ -217,7 +218,7 @@ Cpm <- (ES-EI)/(6*sqrt((3^2)+(mu-0.5*(ES+EI))^2));paste("Cpm = ",round(Cpm, digi
 Lo que quiere decir es que como es menor a 1, el proceso no cumple con especificaciones.
 
 
-## Índice Pp
+### Índice Pp
 
 Indicador del desempeño potencial del proceso que se calcula de forma similar al 
 índice $C_p$ pero usando la desviación estándar de largo plazo.
@@ -228,7 +229,7 @@ $$
 P_p = \frac{ES-EI}{6\sigma_L} \rightarrow Desempeño \space del \space proceso \space a \space largo \space plazo 
 $$
 
-## Índice Ppk
+### Índice Ppk
 
 Indicador del desempeño real del proceso, que se calcula de forma similar al indice $C_{pk}$ pero usando la desviación estándar de largo plazo.
 
@@ -241,7 +242,7 @@ Se utiliza igual que el Cpk solo que se utiliza un sigma sub L, lo cual signific
 que es de largo plazo.
 
 
-## Índice Z
+### Índice Z
 
 Es la métrica de capacidad de procesos de mayor uso en Seis Sigma. Se obtiene calculando
 la distancia entre la media y las especificaciones y esta distancia se divide entre la 
@@ -266,7 +267,7 @@ $$
 Este índice tiene la calidad de 3 sigma.
 
 
-## Índice Zm
+### Índice Zm
 
 Desplazamiento o movimiento del proceso.
 
@@ -274,11 +275,11 @@ $$
 Z_m = Z_c-Z_L
 $$
 
-### Índice Zc
+#### Índice Zc
 
 Valor del índice Z en el cual se emplea la desviación estándar de corto plazo.
 
-### Índice ZL
+#### Índice ZL
 
 Valor del índice Z en el cual se emplea la desviación estándar de largo plazo.
 
@@ -290,7 +291,7 @@ b <- c("El proceso tiene un mejor control que el promedio",
 c <- data.frame(a,b);c
 ```
 
-## Proceso Tres Sigma
+### Proceso Tres Sigma
 
 Proceso cuya capacidad para cumplir con especificaciones a corto plazo es igual a $Z_c=3$
 y el índice es $C_{pk}=1$
@@ -308,9 +309,9 @@ Proceso cuya capacidad para cumplir con especificaciones a corto plazo es igual 
 o cuando es a largo plazo significa $Z_{L}= 4.5$, lo cual, a corto plazo significa $C_{pk}=2$ y a largo plazo $P_{pk}=1.5$
 
 
-## Metricas Seis Sigma para atributos 
+### Metricas Seis Sigma para atributos 
 
-### DPMO
+#### DPMO
 
 Cuando las características de calidad son para atributos. Existe un índice que nos permite ver los defectos por unidades.
 
@@ -330,7 +331,7 @@ $$DPO = \frac{120}{2000\times 24}=\frac{120}{48000}= 0.0025 \times 1000000 = 250
 
 Lo que quiere decir que de 1000000 de ensambles realizados se espera tener 2500 con algún tipo de defecto.
 
-## Estimaciones por intervalo de los índices de capacidad
+### Estimaciones por intervalo de los índices de capacidad
 
 $$
 \hat{C_p} \pm Z_{\infty/2} \frac{\hat{C_p}}{\sqrt{2(n-1)}}
@@ -344,7 +345,7 @@ $$
 \hat{C_{pm}} \pm Z_{\infty/2} \frac{\hat{C_{pm}}}{\sqrt{n}} \sqrt{\frac{\frac{1}{2}+\frac{(\bar{X}-N)^2}{S^2}}{\left[1+\frac{(\bar{X}-N)^2}{S^2}\right]^2}}
 $$
 
-## Causas Comunes y Especiales de Variación
+### Causas Comunes y Especiales de Variación
 
 Existen dos tipo de variabilidad:
 
@@ -358,11 +359,11 @@ Es muy importante tomar en cuenta los tipos de errores que existen:
 
 > Nota: Se puede evitar uno u otro pero no ambos.
 
-## Cartas de control
+### Cartas de control
 
 Es una gráfica para observar y analizar la variabilidad y el comportamiento de un proceso a través del tiempo.
 
-## Límites de probabilidad
+### Límites de probabilidad
 
 Es cuando los límites de control se calculan con la distribución de probabilidad del estadístico para que logren un porcentaje de cobertura específico.
 
@@ -374,9 +375,9 @@ LCS = \mu_w + 3\sigma_w$$
 
 > Nota: Si W tiene un comportamiento normal tendra una probabilidad de 0.9973 de caer en dentro de las especificaciones.
 
-## Tipos de Cartas de control {.tabset .tabset-pills}
+### Tipos de Cartas de control {.tabset .tabset-pills}
 
-### Cartas de Control Variables
+#### Cartas de Control Variables
 
 Para variables continuas:
 
@@ -387,7 +388,7 @@ Para variables continuas:
 
 > Nota: Estos son recogidos con un instrumento. Estas variables por ejemplo la temperatura, peso, longitud, etc.
 
-### Cartas de Control Atributos
+#### Cartas de Control Atributos
 
 * $p$ (proporción o fracción de artículos defectuosos)
 * $np$ (número de unidades defectuosas)
@@ -396,7 +397,7 @@ Para variables continuas:
 
 > Nota: Son del tipo conforme o no conforme depende de si posee o no ciertos atributos, número de defectos o no conformidades que tiene el producto.
 
-## Cartas de Control $\bar{X} - R$ {.tabset .tabset-pills}
+### Cartas de Control $\bar{X} - R$ {.tabset .tabset-pills}
 
 Diagramas para variables que se aplican a procesos masivos, en donde de forma periódica se obtiene un subgrupo de productos, se miden y se calcula la media y el rango R para registrarlos en la carta correspondiente.
 
@@ -406,7 +407,7 @@ Diagramas para variables que se aplican a procesos masivos, en donde de forma pe
 
 Tomando esto en cuenta tenemos los siguientes *límites de control:* 
 
-### Estudio Inicial Carta $\bar{X}$
+#### Estudio Inicial Carta $\bar{X}$
 
 $$
 LCS = \bar{X}+A_2\bar{R} \\
@@ -414,7 +415,7 @@ Línea \space central = \bar{X} \\
 LCS = \bar{X}-A_2\bar{R}
 $$
 
-### Carta cuando se conoce $\bar{X}$ y $\sigma$
+#### Carta cuando se conoce $\bar{X}$ y $\sigma$
 
 $$
 LCS = \bar{X}+ 3 \frac{\sigma}{\sqrt{n}} \\
@@ -422,7 +423,7 @@ Línea \space central = \bar{X} \\
 LCS = \bar{X}- 3 \frac{\sigma}{\sqrt{n}}
 $$
 
-### Límites de control Carta R
+#### Límites de control Carta R
 
 $$
 LCS = D_3 \bar{R}\\
@@ -430,9 +431,9 @@ Línea \space central = \bar{R} \\
 LCS = D_4 \bar{R}
 $$
 
-## Ejemplo {.tabset .tabset-pills}
+### Ejemplo {.tabset .tabset-pills}
 
-### ETL
+#### ETL
 
 ```{r warning=FALSE, message=FALSE}
 ejemplo1 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Control\\Libro1.xlsx",
@@ -469,7 +470,7 @@ ejemplo1_med$LCI_R <- LCI_R
 rbind(head(ejemplo1_med),tail(ejemplo1_med))
 ```
 
-### Gráfica $\bar{X}$
+#### Gráfica $\bar{X}$
 
 ```{r warning=FALSE, message=FALSE}
 plot(ejemplo1_med$Media, type = "o", 
@@ -478,14 +479,14 @@ plot(ejemplo1_med$Media, type = "o",
      xlab = "Muestras",
      main = "Gráfico X",
      col = "#EA80FC")
-abline(h = ejemplo1_med$LCS, col = "white",lty = 2)
+abline(h = ejemplo1_med$LCS, col = "grey60",lty = 2)
 abline(h = ejemplo1_med$LC, col = "#00DAC6", lty = 2)
-abline(h = ejemplo1_med$LCI, col = "white", lty = 2)
+abline(h = ejemplo1_med$LCI, col = "grey60", lty = 2)
 
 ```
 
 
-### Gráfica $R$
+#### Gráfica $R$
 
 ```{r warning=FALSE, message=FALSE}
 plot(ejemplo1_med$Rango, type = "o", 
@@ -494,17 +495,17 @@ plot(ejemplo1_med$Rango, type = "o",
      xlab = "Muestras",
      main = "Gráfico R",
      col = "#EA80FC")
-abline(h = ejemplo1_med$LCS_R, col = "white",lty = 2)
+abline(h = ejemplo1_med$LCS_R, col = "grey60",lty = 2)
 abline(h = ejemplo1_med$LC_R, col = "#00DAC6", lty = 2)
-abline(h = ejemplo1_med$LCI_R, col = "white", lty = 2)
+abline(h = ejemplo1_med$LCI_R, col = "grey60", lty = 2)
 
 ```
 
-## Cartas de Control $\bar{X} - S$ {.tabset .tabset-pills}
+### Cartas de Control $\bar{X} - S$ {.tabset .tabset-pills}
 
 Diagrama para variables que se aplican a procesos masivos, en los quiere tener una mayor potencia para detectar pequeños cambios. Por lo general, el tamaño de los subgrupos es $n>10$.
 
-### Carta $\bar{X}$
+#### Carta $\bar{X}$
 
 $$
 LCS = \bar{X} + 3 \frac{\bar{S}}{C_4 \sqrt{n}}\\
@@ -512,7 +513,7 @@ LC = \bar{X}\\
 LCI = \bar{X} - 3 \frac{\bar{S}}{C_4 \sqrt{n}}
 $$
 
-### Carta $S$
+#### Carta $S$
 
 $$
 LCS = \bar{S} + 3 \frac{\bar{S}}{C_4}\sqrt{1-C^2_4}\\
@@ -520,7 +521,7 @@ LC = \bar{S}\\
 LCI = \bar{S} - 3 \frac{\bar{S}}{C_4} \sqrt{1-C^2_4}
 $$
 
-## Índice de inestabilidad $, S_t$
+### Índice de inestabilidad $, S_t$
 
 Mide que tan inestable es un proceso y se obtiene dividiendo el número de puntos especiales entre el total de puntos graficados en una carta.
 
@@ -536,7 +537,7 @@ Proceso fuera de control estadístico que se detecta cuando en la carta de contr
 
 Son señales de que una causa especial ocurrio en el proceso
 
-## Carta de individuales
+### Carta de individuales
 
 Es un diagrama para variables de tipo continuo que se aplica a procesos lentos, donde hay un espacio largo de tiempo entre una medición y la siguiente.
 
@@ -545,7 +546,7 @@ $$
 \bar{X} \pm 3 \left(\frac{\bar{R}}{1.128}\right)
 $$
 
-## Carta de Rangos Moviles
+### Carta de Rangos Moviles
 
 Carta que acompaña a la carta de individuales, y en ella se grafica el rango móvil de orden 2. Es de utilidad para detectar cambios en la dispersión de procesos.
 
@@ -555,11 +556,11 @@ Límite central $= \bar{R} = 0.43$
 
 Límite de control superior $= D_4 \bar{R} = 3.2686 \times 0.43 = 1.41$
 
-## Carta de Precontrol
+### Carta de Precontrol
 
 Diagrama para variables con doble especificación en donde se grafican las mediciones individuales, utiliza las especificaciones como límites de control y se aplica cuando $C_{pk}> 1.15$
 
-## Carta $p$ (proporción de defectos)
+### Carta $p$ (proporción de defectos)
 
 Muestras las variaciones en la fracción de artículos por muestra o subgrupo; es ampliamente utilizada para evaluar el desempeño de procesos.
 
@@ -601,7 +602,7 @@ LC  = 0\\
 LCI = -3
 $$
 
-## Carta $np$ (número de defectuosos) {.tabset .tabset-pills}
+### Carta $np$ (número de defectuosos) {.tabset .tabset-pills}
 
 Diagrama que analiza el número de defectuosos por subgrupo; se aplica cuando el tamaño de subgrupo es constante.
 
@@ -614,7 +615,7 @@ LC  = n\bar{p}\\
 LCI = n\bar{p} -3\sqrt{n\bar{p}(1-\bar{p})}
 $$
 
-### ETL
+#### ETL
 
 > Ejemplo: de una muestra de $n=120$ se toman 20 lotes donde se analizan los componentes que tienen defectos.
 
@@ -637,7 +638,7 @@ ejemplo2$LC <- LC
 rbind(head(ejemplo2, 5), tail(ejemplo2, 5))
 ```
 
-### Gráfico $np$ (R Base)
+#### Gráfico $np$ (R Base)
 
 ```{r}
 plot(ejemplo2$Componentes.D, type = "o", 
@@ -646,12 +647,12 @@ plot(ejemplo2$Componentes.D, type = "o",
      xlab = "Muestras",
      main = "Gráfico np",
      col = "#EA80FC")
-abline(h = ejemplo2$LCS, col = "white",lty = 2)
+abline(h = ejemplo2$LCS, col = "grey60",lty = 2)
 abline(h = ejemplo2$LC, col = "#00DAC6", lty = 2)
-abline(h = ejemplo2$LCI, col = "white", lty = 2)
+abline(h = ejemplo2$LCI, col = "grey60", lty = 2)
 ```
 
-### Gráfico $np$ (GGPLOT2)
+#### Gráfico $np$ (GGPLOT2)
 
 ```{r}
 ejemplo2 %>% ggplot(aes(Muestra, Componentes.D))+
@@ -689,7 +690,7 @@ ejemplo2 %>% ggplot(aes(Muestra, Componentes.D))+
             vjust = 1.2)
 ```
 
-## Cartas $c$ (número de defectos)
+### Cartas $c$ (número de defectos)
 
 La **Carta c** tiene como objetivo el analizar la variabilidad del número de defectos por subgrupo o unidad con un tamaño de subgrupo constante.
 
@@ -702,7 +703,7 @@ $$
 
 > Los límites reflejan la variación esperada para el número de defectos por subgrupo.
 
-## Carta $u$ (número de defectos por unidad)
+### Carta $u$ (número de defectos por unidad)
 
 La **Carta $u$** analiza la variación del número promedio de defectos por artículo o unidad de referencia. Se usa cuando el tamaño del subgrupo no es constante.
 
@@ -721,27 +722,14 @@ $$
 
 > Nota: Cuando n no es el mismo en todos los subgrupos, entonces se sustituye por el tamaño promedio de los subgrupos n. En la carta u se grafica el número promedio de defectos por unidad.
 
-## Carta $u$ con límites variables
+### Carta $u$ con límites variables
 
 Se aplica cuando el tamaño de subgrupo $n$, es muy variable. Para cada $n_i$ se calcula los límites de control correspondientes.
 
-## Carta $u$ estandarizada
+### Carta $u$ estandarizada
 
 La variable $Z_i$ sigue aproximadamente una distribución normal estándar $(\mu=0,\sigma=1)$. Por lo tanto, la línea central en esta carta es igual a cero, y los límites de control inferior y superior son $-3$ y $3$, respectivamente.
 
 $$
 z_i=\frac{u_i-\bar{u}}{\sqrt{\frac{\bar{u}}{n_i}}}
 $$
-
-
-
-
-
-
-
-
-
-
-
-
-
