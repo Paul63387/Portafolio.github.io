@@ -1,19 +1,14 @@
 ---
 title: "Control Estadístico"
 output: 
+  #flexdashboard::flex_dashboard:
   html_document:
-    toc_float: true
-    toc: true
-    code_folding: show #show
+    toc_float: TRUE
+    toc: TRUE
+    code_folding: hide #show
+    df_print: paged
     theme:
-      bootswatch: "lux"
-      font_scale: 1
-      enable-gradients: "TRUE"
-      enable-shadows: "TRUE"
-      base_font:
-        google: Prompt
-      heading_font:
-        google: Proza Libre
+      bootswatch: lux
 editor_options: 
   chunk_output_type: console
 ---
@@ -23,7 +18,10 @@ if (requireNamespace("thematic"))
   thematic::thematic_rmd(font = "auto")
 knitr::opts_chunk$set(fig.retina=2, 
                       message = FALSE,
-                      warning = FALSE)
+                      warning = FALSE,
+                      comment = "",
+                      out.width = "65%",
+                      fig.align = "center")
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -54,8 +52,8 @@ plot(density(rnorm(780, 783, 3)),
      xlab = "Ancho en mm",
      ylab = "Densidad",
      main = "Ejemplo 1: Longitud de la capa de las llantas")
-abline(v = 770, col = "grey60")
-abline(v = 790, col = "grey60")
+abline(v = 770, col = "grey60", lty = 2)
+abline(v = 790, col = "grey60", lty = 2)
 ```
 
 Como podemos ver el proceso no está centrado:
@@ -68,28 +66,15 @@ Variacion_real <- 6*(3)
 Cp <- Variacion_tolerada/Variacion_real;paste("CP =",round(Cp, digits = 2), sep = " ")
 ```
 
-```{r}
-Valor_indice_cp <- c("Cp ≥ 2", 
-                     "Cp > 1.33",
-                     "1 < Cp < 1.33",
-                     "0.67 < Cp < 1",
-                     "Cp < 0.67")
-Clase_o_categoria <- c("Clase mundial",
-                       "1",
-                       "2",
-                       "3",
-                       "4")
-Decision_si_el_proc_esta_centra <- c("Se tiene calidad Seis Sigma",
-                                     "Adecuado",
-                                     "Parcialmente Adecuado, requiere de un control estricto",
-                                     "No adecuado para el trabajo, modificaciones serias",
-                                     "No adecuado para el trabajo, modificaciones muy serias")
-Tabla5_1 <- data.frame(Valor_indice_cp,
-                       Clase_o_categoria,
-                       Decision_si_el_proc_esta_centra)
-Tabla5_1
+|Indice Cp|Clase|Decisión|
+|:--------|:---:|:-------|
+|Cp ≥ 2|Clase mundial|Se tiene calidad Seis Sigma|
+|Cp > 1.33|1|Adecuado|
+|1 < Cp < 1.33|2|Parcialmente Adecuado, requiere de un control estricto|
+|0.67 < Cp < 1|3|No adecuado para el trabajo, modificaciones serias|
+|Cp < 0.67|4|No adecuado para el trabajo, modificaciones muy serias|
 
-```
+-----------------------------------------------------------------
 
 ### Índice Cr
 
@@ -111,6 +96,8 @@ Estos dos índices no toman en cuenta si el proceso se encuentra
 centrado lo cual se puede observar a partir de la figura la cual 
 es una desventaja para estos dos índices.
 
+-----------------------------------------------------------------
+
 ### Índice Cpi
 
 Indicador de la capacidad de un proceso para cumplir con la especificación inferior de una
@@ -126,6 +113,8 @@ Cpi <- (mu-EI)/(3*(3));paste("Cpi =",round(Cpi, digits = 2), sep = " ")
 
 Como se puede ver si el indice supera el 1 y específicamente es mayor que 1.25 se puede decir que
 la especificación inferior es adecuada.
+
+-----------------------------------------------------------------
 
 ### Índice Cps
 
@@ -148,6 +137,8 @@ especificación superior es entre 1.79% y 0.82% aproximadamente.
 Como vemos en este caso se puede obtener un índice que si toma en cuenta el centrado del proceso
 es decir se utiliza la media y claro como es la mitad de la distribución se utiliza 3 sigma.
 
+-----------------------------------------------------------------
+
 ### Índice Cpk
 
 Es un indicador de la capacidad real de un proceso que se puede ver como un ajuste del $C_p$ para tomar en cuenta el centrado del proceso.
@@ -165,6 +156,8 @@ Cpk <- min(c(Cpi, Cps));paste("Cpk =",round(Cpk, digits = 2), sep = " ")
 En general el proceso indica una capacidad no satisfactoria. El porcentaje de de capas
 que exceden los 790 mm se encuentran entre 0.82% y 1.79%. Entonces si mejora su centrado
 alcanzaría el valor del $C_p = 1.11$ 
+
+-----------------------------------------------------------------
 
 ### Índice K
 
@@ -185,6 +178,8 @@ lo que el centrado del proceso es inadecuado y esto contribuye de manera signifi
 a la baja capacidad del proceso de cumplir con la especificación superior anterior
 mencionada.
 
+-----------------------------------------------------------------
+
 ### Índice Cpm
 
 Índice de **Taguchi** similar al $C_{pk}$ que, en forma simultanea, toma en cuenta
@@ -203,13 +198,11 @@ C_{pm} = \frac{ES-EI}{6\sqrt{\sigma^2+(\mu-0.5(ES+EI))^2}} \\
 C_{pm} = \frac{20}{25.46} = 0.79
 $$
 
-```{r}
-a <- c("Cpm < 1", "Cpm > 1", "Cpm > 1.33")
-b <- c("El proceso no cumple con especificaciones",
-       "El proceso cumple con especificaciones",
-       "El proceso cumple con especificaciones, pero además la media del proceso está dentro de la quinta parte central de la banda de especificación")
-c <- data.frame(a,b);c
-```
+|Índice|Desición|
+|:-----|:-------|
+|Cpm < 1|El proceso no cumple con especificaciones|
+|Cpm > 1|El proceso cumple con especificaciones|
+|Cpm > 1.33|El proceso cumple con especificaciones, pero además la media del proceso está dentro de la quinta parte central de la banda de especificación|
 
 ```{r}
 Cpm <- (ES-EI)/(6*sqrt((3^2)+(mu-0.5*(ES+EI))^2));paste("Cpm = ",round(Cpm, digits = 2),sep = "")
@@ -217,6 +210,7 @@ Cpm <- (ES-EI)/(6*sqrt((3^2)+(mu-0.5*(ES+EI))^2));paste("Cpm = ",round(Cpm, digi
 
 Lo que quiere decir es que como es menor a 1, el proceso no cumple con especificaciones.
 
+-----------------------------------------------------------------
 
 ### Índice Pp
 
@@ -228,6 +222,8 @@ Este índice se no toma el centrado del proceso por el cual se complemente con e
 $$
 P_p = \frac{ES-EI}{6\sigma_L} \rightarrow Desempeño \space del \space proceso \space a \space largo \space plazo 
 $$
+
+-----------------------------------------------------------------
 
 ### Índice Ppk
 
@@ -241,6 +237,7 @@ $$
 Se utiliza igual que el Cpk solo que se utiliza un sigma sub L, lo cual significa
 que es de largo plazo.
 
+-----------------------------------------------------------------
 
 ### Índice Z
 
@@ -266,6 +263,7 @@ $$
 > Nota:
 Este índice tiene la calidad de 3 sigma.
 
+-----------------------------------------------------------------
 
 ### Índice Zm
 
@@ -283,13 +281,13 @@ Valor del índice Z en el cual se emplea la desviación estándar de corto plazo
 
 Valor del índice Z en el cual se emplea la desviación estándar de largo plazo.
 
-```{r}
-a <- c("Zm < 1.5", "Zm > 1.5", "Zm No se conoce")
-b <- c("El proceso tiene un mejor control que el promedio",
-       "El control es muy malo",
-       "Se asume un valor de 1.5")
-c <- data.frame(a,b);c
-```
+|Índice|Desición|
+|:-----|:-------|
+|Zm < 1.5|El proceso tiene un mejor control que el promedio|
+|Zm > 1.5|El control es muy malo|
+|Zm No se conoce|Se asume un valor de 1.5|
+
+-----------------------------------------------------------------
 
 ### Proceso Tres Sigma
 
@@ -308,6 +306,7 @@ $$
 Proceso cuya capacidad para cumplir con especificaciones a corto plazo es igual a $Z_c=6$
 o cuando es a largo plazo significa $Z_{L}= 4.5$, lo cual, a corto plazo significa $C_{pk}=2$ y a largo plazo $P_{pk}=1.5$
 
+-----------------------------------------------------------------
 
 ### Metricas Seis Sigma para atributos 
 
@@ -358,6 +357,8 @@ Es muy importante tomar en cuenta los tipos de errores que existen:
 * Error Tipo 2: Pensar que era una causa común cuando en realidad era una causa especial.
 
 > Nota: Se puede evitar uno u otro pero no ambos.
+
+-----------------------------------------------------------------
 
 ### Cartas de control
 
@@ -467,7 +468,7 @@ LCI_R <- D3*(media_rango)
 ejemplo1_med$LCS_R <- LCS_R
 ejemplo1_med$LC_R <- LC_R
 ejemplo1_med$LCI_R <- LCI_R
-rbind(head(ejemplo1_med),tail(ejemplo1_med))
+ejemplo1_med
 ```
 
 #### Gráfica $\bar{X}$
@@ -635,7 +636,7 @@ ejemplo2$LCS <- LCS
 ejemplo2$LCI <- LCI
 ejemplo2$LC <- LC
 
-rbind(head(ejemplo2, 5), tail(ejemplo2, 5))
+ejemplo2
 ```
 
 #### Gráfico $np$ (R Base)
@@ -674,19 +675,19 @@ ejemplo2 %>% ggplot(aes(Muestra, Componentes.D))+
                 label = "LCI = 0.43", 
                 y = 0), 
             angle = 0, 
-            color = "gray80",
+            color = "black",
             vjust = 1.2)+
   geom_text(aes(x = 19, 
                 label = "LCS = 17.87", 
                 y = 19.5), 
             angle = 0, 
-            color = "gray80",
+            color = "black",
             vjust = 1.2)+
   geom_text(aes(x = 19, 
                 label = "LC = 9.15", 
                 y = 9.15), 
             angle = 0, 
-            color = "gray80",
+            color = "black",
             vjust = 1.2)
 ```
 
